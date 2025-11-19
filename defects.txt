@@ -1,0 +1,27 @@
+Defect 1: Incorrect activation command for Windows
+- README instruction: `source .venv/bin/activate`
+- Actual (Windows): PowerShell uses `.venv\Scripts\Activate.ps1` or `venv\Scripts\activate.bat` for cmd.
+- File evidence: README.md (Installation section)
+
+Defect 2: Wrong HTTP method for archive
+- README: `POST /archive/<index>`
+- Actual route in `app.py`: @app.route('/archive/<int:index>') (defaults to GET)
+- Evidence: app.py, archive_task function
+
+Defect 3: Mismatched route name for color update
+- README: `POST /change_color/<index>`
+- Actual: route is `/update_color/<int:index>` in app.py
+- Also the template doesn't include a form to change color (missing usage example).
+
+Defect 4: Missing 'color' parameter in docs for add task
+- README says form has only `title`, but `app.py` accepts optional `color` with default 'white'.
+- Evidence: add_task in app.py accepts `color = request.form.get('color', 'white')`.
+
+Defect 5: Missing docs for viewing/handling archived tasks and task ordering
+- No README instructions on how to view archived tasks (though template displays them) or how to restore them.
+- No API exists for task reordering, but the README suggests order adjustment features in prompt.md.
+
+Defect 6: Route naming and methods inconsistent with examples
+- README lists `/delete/<index>` but doesn't clarify method (GET is used). It lists `/add` but doesn't show color example.
+
+Suggested severity: Medium for most, high for method mismatch because clients may break.
