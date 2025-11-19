@@ -1,0 +1,50 @@
+1. Missing documentation for color labeling when creating tasks
+   - README.md only documents `title` for `POST /add`, but `app.py:12-17` also consumes a `color` field so users can label cards when they are created.
+   - Trace:
+     ```
+     $ .venv/bin/python - <<'PY'
+     from app import app, tasks
+     client = app.test_client()
+     client.post('/add', data={'title': 'DocTest'}, follow_redirects=True)
+     print(tasks[-1])
+     PY
+     {'title': 'DocTest', 'color': 'white'}
+     ```
+     With the documented payload, the color always stays `white`, so color labeling is impossible despite being a supported feature.
+
+2. Archive endpoint method is incorrect in README.md
+   - README.md instructs `POST /archive/<index>`, yet `app.py:23-28` registers `/archive/<int:index>` with the default methods (GET only).
+   - Attempting the documented POST call leads to a 405 Method Not Allowed:
+     ```
+     status 405
+     allowed HEAD, GET, OPTIONS
+     ```
+     (captured via the Flask test client).
+
+3. Documented color-change route does not exist
+   - README.md states `POST /change_color/<index>`, but the Flask app only exposes `/update_color/<int:index>` (`app.py:30-35`).
+   - Calling the documented path returns a 404:
+     ```
+     status 404
+     ```
+
+4. README.md omits the required `color` parameter for `/update_color/<index>`
+   - Without documenting the `color` form field, users following the README will hit the endpoint without data, which sets the task color to `None`.
+   - Trace:
+     ```
+     $ .venv/bin/python - <<'PY'
+     from app import app, tasks
+     client = app.test_client()
+     client.post('/add', data={'title': 'colorless'}, follow_redirects=True)
+     client.post('/update_color/0', data={}, follow_redirects=True)
+     print(tasks[0])
+     PY
+     {'title': 'colorless', 'color': None}
+     ```
+
+5. No guidance for adjusting task order (missing feature documentation)
+   - The task list is supposed to support reordering, but README.md provides no instructions and `app.py` offers no route for it. Attempting a reasonable `/reorder` call fails with 404:
+     ```
+     status 404
+     ```
+   - The documentation needs to call out that ordering is not implemented so users do not spend time trying to follow nonexistent instructions.
