@@ -1,0 +1,111 @@
+# Documentation Defects — Project Management System
+
+**Generated:** November 19, 2025
+
+---
+
+## DEFECT #1: Incorrect Route Name for Color Change
+- **Type:** Incorrect Documentation  
+- **Severity:** High  
+- **Description:** README documents `POST /change_color/<index>` but the actual endpoint is `POST /update_color/<index>`.  
+- **Impact:** Users will get 404 errors if they follow the documentation.  
+- **Evidence:**  
+  ```
+  POST /change_color/0 -> 404 Not Found
+  Correct: POST /update_color/0 -> 200 OK
+  ```
+
+---
+
+## DEFECT #2: Incorrect HTTP Method for Archive
+- **Type:** Incorrect Documentation  
+- **Severity:** High  
+- **Description:** README states `POST /archive/<index>`, but the implementation only accepts GET.  
+- **Impact:** Users attempting POST will receive 405 Method Not Allowed.  
+- **Evidence:**  
+  ```
+  POST /archive/0 -> 405 Method Not Allowed
+  GET /archive/0 -> 302 Redirect
+  ```
+
+---
+
+## DEFECT #3: Missing Documentation for Color Parameter in Add Task
+- **Type:** Missing Documentation  
+- **Severity:** Medium  
+- **Description:** `/add` endpoint accepts optional `color` parameter (default `'white'`), but README only mentions `title`.  
+- **Impact:** Users unaware they can specify task colors.  
+- **Evidence:**  
+  ```
+  POST /add with title=Task, color=red -> task created with color red
+  POST /add with title=Task2 -> task created with color white
+  ```
+
+---
+
+## DEFECT #4: Missing Documentation for Archived Tasks Display
+- **Type:** Missing Documentation  
+- **Severity:** Medium  
+- **Description:** README does not explain how archived tasks are displayed.  
+- **Impact:** Users do not know where to see archived tasks or that they exist.  
+- **Evidence:** Archived tasks appear in `templates/index.html` under "Archived Tasks" after `GET /archive/<index>`.
+
+---
+
+## DEFECT #5: Missing Documentation for Task Order Management
+- **Type:** Missing Documentation  
+- **Severity:** Medium  
+- **Description:** Task reordering is mentioned in prompts, but no endpoint exists.  
+- **Impact:** Users may expect reordering functionality that is not implemented.  
+- **Evidence:** `/reorder` call returns 404; tasks are displayed in insertion order.
+
+---
+
+## DEFECT #6: Incomplete Installation Instructions for Windows
+- **Type:** Outdated/Incomplete Documentation  
+- **Severity:** Low  
+- **Description:** README uses `source .venv/bin/activate` (Unix), which fails on Windows PowerShell.  
+- **Impact:** Windows users cannot activate virtual environment using documented command.  
+- **Correct Commands for Windows PowerShell:**  
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+  **Alternative for Windows CMD:**  
+  ```cmd
+  .\venv\Scripts\activate.bat
+  ```
+
+---
+
+## DEFECT #7: Missing Error Handling Documentation
+- **Type:** Missing Documentation  
+- **Severity:** Medium  
+- **Description:** README does not describe behavior for invalid indices or missing parameters.  
+- **Impact:** Users may not understand silent failures or default values.  
+- **Evidence:**  
+  - Invalid index → silently ignored  
+  - Missing `title` → task stored as `title: None`  
+  - Missing or invalid color → color set to None or default  
+
+---
+
+## DEFECT #8: Missing Documentation for Task Data Structure
+- **Type:** Missing Documentation  
+- **Severity:** Low  
+- **Description:** README does not explain task representation.  
+- **Impact:** Developers cannot infer data model.  
+- **Evidence:** Tasks are stored as dictionaries: `{'title': <str>, 'color': <str>}`. No IDs, timestamps, or user info.
+
+---
+
+## Summary
+- **Total Defects:** 8  
+- **High Severity:** 2  
+- **Medium Severity:** 5  
+- **Low Severity:** 1  
+
+**Critical Issues:**  
+1. `/change_color` vs `/update_color` route mismatch  
+2. `/archive` HTTP method mismatch  
+
+These defects prevent users from successfully following the documentation and using core features of the app.

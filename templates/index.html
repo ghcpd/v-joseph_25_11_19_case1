@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Management</title>
+</head>
+<body>
+<h1>Tasks</h1>
+<ul>
+    {% for task in tasks %}
+    <li style="background-color: {{ task.color }}">{{ task.title }}
+        <a href="{{ url_for('delete_task', index=loop.index0) }}">Delete</a>
+        <a href="{{ url_for('archive_task', index=loop.index0) }}">Archive</a>
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Add Task</h2>
+<form method="post" action="{{ url_for('add_task') }}">
+    Title: <input name="title">
+    Color: <input name="color">
+    <button type="submit">Add</button>
+</form>
+
+<h1>Archived Tasks</h1>
+<ul>
+    {% for task in archived_tasks %}
+    <li>{{ task.title }}</li>
+    {% endfor %}
+</ul>
+</body>
+</html>
