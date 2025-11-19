@@ -1,0 +1,74 @@
+Documentation Defects — Project Management System
+
+1) Incorrect HTTP method for /archive
+- Description: README states `POST /archive/<index>` while the app implements GET.
+- Expected per README: POST should archive.
+- Actual: GET `/archive/<index>` archives; a POST to /archive returns Method Not Allowed (405).
+- Reproduction:
+  - `curl -X POST http://127.0.0.1:5000/archive/0` -> returns 405
+  - `curl http://127.0.0.1:5000/archive/0` -> returns 302 (redirect to index) and archives the task
+- Evidence:
+  - POST archive -> 405
+    "POST http://127.0.0.1:5000/archive/0 -> 405"
+  - GET archive -> 302
+    "GET http://127.0.0.1:5000/archive/0 -> 302"
+
+2) Incorrect route name for change color
+- Description: README shows `POST /change_color/<index>` but code exposes `POST /update_color/<index>`.
+- Expected per README: POST to /change_color updates the color
+- Actual: /change_color returns 404 Not Found, /update_color works
+- Reproduction:
+  - `curl -X POST -F "color=yellow" http://127.0.0.1:5000/change_color/0` -> 404
+  - `curl -X POST -F "color=yellow" http://127.0.0.1:5000/update_color/0` -> 302 and updates color
+- Evidence:
+  - POST change_color -> 404
+    "POST http://127.0.0.1:5000/change_color/0 -> 404"
+
+3) Missing docs for `color` on add
+- Description: README claims only `title` is required for `POST /add`, but the app accepts optional `color` which defaults to `white`.
+- Expected per README: Only `title` used.
+- Actual: `POST /add` supports `color`; omitted in docs.
+- Reproduction:
+  - `curl -X POST -F "title=Task" -F "color=red" http://127.0.0.1:5000/add` -> task created with color red
+  - `curl -X POST -F "title=Task2" http://127.0.0.1:5000/add` -> task created with default color white
+- Evidence:
+  - HTML shows `style="background-color: red"` for the red task in the UI.
+
+4) Installation instructions assume Unix shell activation
+- Description: README uses `source .venv/bin/activate` for venv activation, which does not work in PowerShell (Windows).
+- Expected per README: same for all environments
+- Actual: On Windows, activate venv with `.\.venv\Scripts\Activate.ps1`
+- Reproduction:
+  - Running `source .venv/bin/activate` in PowerShell produces an error because `source` is not a PowerShell cmdlet and path doesn't exist.
+- Evidence:
+  - The project contains `.venv\Scripts\Activate.ps1` not a Unix bin activation.
+
+5) Unclear: No endpoint to reorder tasks or restore archived tasks (missing docs / missing feature)
+- Description: README mentions 'adjust task color and order' in goals but does not document any endpoints to reorder tasks or restore archived tasks; the app does not appear to support reorder or restore.
+- Expected per README: API for reordering tasks and restoring archived tasks documented.
+- Actual: No endpoints exist to reorder or restore; only GET `/archive` and GET `/delete` and POST `/update_color`.
+- Reproduction:
+  - There are no routes like `/reorder`, `/restore`, or similar in code.
+- Evidence:
+  - app.py endpoint listing shows only: `/`, `/add`, `/delete/<int:index>`, `/archive/<int:index>`, `/update_color/<int:index>`.
+
+6) Shell script uses `curl` and Linux backgrounding; not compatible with Windows
+- Description: `run_tests.sh` and `setup.sh` contain Unix-specific commands that fail on Windows.
+- Expected per README: Scripts are usable in the given environment.
+- Actual: On Windows, running `bash run_tests.sh` fails; `run_tests.sh` uses `curl`, `&` backgrounding and `kill $APP_PID` which are Unix behaviors.
+- Reproduction:
+  - Executing `bash run_tests.sh` in a Windows PowerShell environment returns `python: command not found` or fails to locate `.venv/bin/activate`.
+- Evidence:
+  - Output when running `run_tests.sh` under Windows:
+    "run_tests.sh: line 5: python: command not found"
+
+7) Index argument indexing not documented
+- Description: The README uses `<index>` in endpoints but does not specify whether the index is 0-based or 1-based.
+- Expected per README: Clarity on index base (0-based and the effect of order).
+- Actual: Index is 0-based (see template uses `loop.index0`), but not documented.
+- Reproduction:
+  - The link in index.html uses `loop.index0` so /delete/0 deletes the first task, not /delete/1.
+- Evidence:
+  - Template: `url_for('delete_task', index=loop.index0)` shows it's 0-based.
+
+Please refer to `corrected_readme.md` for corrective documentation and `test_files/test_api.py` for tests that verify each documented behavior.  
