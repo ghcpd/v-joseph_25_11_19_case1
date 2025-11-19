@@ -1,0 +1,28 @@
+Defect 1: Archive endpoint method mismatch
+- Doc claim: `POST /archive/<index>`
+- Actual: `GET /archive/<index>` only (see `app.py` `@app.route('/archive/<int:index>')`)
+- Evidence: `POST /archive/0` returns 405 Method Not Allowed (test_client run).
+
+Defect 2: Color change endpoint name mismatch
+- Doc claim: `POST /change_color/<index>`
+- Actual: `POST /update_color/<index>` (see `app.py` `@app.route('/update_color/<int:index>', methods=['POST'])`)
+- Evidence: `POST /change_color/0` returns 404 Not Found; `POST /update_color/0` returns 302 redirect (test_client run).
+
+Defect 3: Add task color parameter undocumented
+- Doc claim: Add task via `POST /add` with form: `title` only.
+- Actual: `POST /add` accepts optional `color` field, defaulting to `'white'`, and stores it in the task.
+- Evidence: `client.post('/add', data={'title': 'Task A', 'color': 'red'})` yields tasks `[{'title': 'Task A', 'color': 'red'}]`.
+
+Defect 4: Task ordering feature missing/undocumented
+- Doc/task instructions mention adjusting task order, but README provides no guidance and the app implements no reorder endpoint.
+- Evidence: `POST /reorder` returns 404 Not Found (test_client run); no ordering logic exists in `app.py` or template.
+
+Defect 5: Virtualenv activation instructions are platform-specific and incorrect for Windows
+- Doc claim: `source .venv/bin/activate`
+- Actual (Windows workspace): `.venv\Scripts\Activate.ps1` or `.venv\Scripts\activate` is required.
+- Evidence: Current environment is Windows PowerShell; POSIX `source` path does not exist.
+
+Defect 6: Archived tasks visibility undocumented
+- Doc claim: none about viewing archived tasks.
+- Actual: Archived tasks are rendered on `/` under "Archived Tasks" list (`templates/index.html`).
+- Evidence: Visiting `/` after `GET /archive/<index>` shows the item in the archived list.
