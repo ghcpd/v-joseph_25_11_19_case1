@@ -1,0 +1,35 @@
+Task: Flask Project Management System Documentation Verification
+You are provided with a Flask-based project management system library. The project is designed to manage tasks, users, and project boards.
+
+Your job is to verify that the README.md documentation is accurate and up-to-date. Specifically, check the following sub-types of documentation defects:
+
+Missing docs – Missing instructions for major features such as task archiving or color labeling.
+Outdated docs – Example commands that do not match the current API or Flask routes.
+Incorrect docs – Wrong parameter names, value ranges, or return values.
+Your tasks:
+
+Set up a Python .venv environment, It already installed the flask.
+Follow all instructions in README.md to run the Flask app, add/delete tasks, move tasks to archive, and adjust task color and order.
+Identify any mismatch between documentation and actual implementation.
+Generate a corrected_readme.md with accurate instructions and working examples.
+Output all discovered defects to defects.txt with error traces and descriptions.
+Expected Deliverables
+defects.txt – Detailed list of all documentation defects found (at least 5).
+corrected_readme.md – Fixed version of the README with working instructions.
+requirements.txt – Libraries required for the Flask project.
+setup.sh – Bash script to set up the environment.
+test_files/ – Python test files to verify each feature.
+run_tests.sh – Bash script to run all test cases.
+
+Documentation and automation now reflect the actual Flask endpoints, and Pytest coverage demonstrates adding, deleting, archiving, and recoloring tasks.
+
+Docs & Scripts
+
+corrected_readme.md (lines 1-86) now walks through setup, running the server, and each working route (including explicit curl examples for /add, /delete, /archive, and /update_color) while clarifying that reordering is not implemented.
+defects.txt (lines 1-50) records the five documentation defects with the reproduction traces you requested (missing color instructions for /add, wrong archive method, nonexistent /change_color, missing color payload docs, and absent task-order guidance).
+requirements.txt (lines 1-2) lists Flask and pytest, and setup.sh (lines 1-14) reliably provisions .venv (handles python3, ensurepip, and dependency install). run_tests.sh (lines 1-6) reuses that setup before executing the Pytest suite with capture disabled to avoid the tmpfile issue observed earlier.
+Tests
+
+Added test_files/test_app_features.py (lines 1-51), which resets the in-memory lists between tests and validates each route’s behavior (color defaults, explicit colors, delete, archive, update-color).
+Tests executed via ./run_tests.sh (5 passed).
+Natural next steps: 1) implement an actual reordering endpoint/UI so the board matches the spec; 2) persist tasks to durable storage to survive restarts.
