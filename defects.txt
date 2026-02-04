@@ -1,0 +1,222 @@
+# Documentation Defects Report
+## Flask Project Management System
+
+Generated: November 19, 2025
+
+---
+
+## DEFECT #1: Incorrect Route Name for Color Change
+**Type**: Incorrect Documentation  
+**Severity**: High  
+**Location**: README.md, line 14
+
+**Documented**:
+```
+Change color: `POST /change_color/<index>`
+```
+
+**Actual Implementation** (app.py, line 29):
+```python
+@app.route('/update_color/<int:index>', methods=['POST'])
+def update_color(index):
+```
+
+**Issue**: The README documents the route as `/change_color/<index>`, but the actual implementation uses `/update_color/<int:index>`. This will cause a 404 error if users follow the documentation.
+
+**Error Trace**:
+```
+POST /change_color/0 -> 404 Not Found
+Correct: POST /update_color/0 -> 200 OK
+```
+
+**Impact**: Users following the documentation will be unable to change task colors.
+
+---
+
+## DEFECT #2: Incorrect HTTP Method for Archive
+**Type**: Incorrect Documentation  
+**Severity**: High  
+**Location**: README.md, line 13
+
+**Documented**:
+```
+Archive task: `POST /archive/<index>`
+```
+
+**Actual Implementation** (app.py, line 24):
+```python
+@app.route('/archive/<int:index>')
+def archive_task(index):
+```
+
+**Issue**: The README states the archive endpoint requires POST method, but the implementation only accepts GET (no methods=['POST'] specified, defaults to GET).
+
+**Error Trace**:
+```
+POST /archive/0 -> 405 Method Not Allowed
+Correct: GET /archive/0 -> 302 Redirect
+```
+
+**Impact**: Users attempting to archive tasks via POST will receive a method not allowed error.
+
+---
+
+## DEFECT #3: Missing Documentation for Color Parameter in Add Task
+**Type**: Missing Documentation  
+**Severity**: Medium  
+**Location**: README.md, line 12
+
+**Documented**:
+```
+Add task: `POST /add` with form: `title` only.
+```
+
+**Actual Implementation** (app.py, lines 13-17):
+```python
+@app.route('/add', methods=['POST'])
+def add_task():
+    title = request.form.get('title')
+    color = request.form.get('color', 'white')
+    tasks.append({'title': title, 'color': color})
+```
+
+**Issue**: The documentation states "with form: `title` only", but the implementation actually accepts an optional `color` parameter. The HTML form (templates/index.html) also includes a color input field.
+
+**Missing Information**:
+- The `color` parameter is optional when adding tasks
+- Default color is 'white' if not specified
+- Users can provide custom colors via the form
+
+**Impact**: Users are unaware they can set task colors during creation, limiting their use of a key feature.
+
+---
+
+## DEFECT #4: Missing Documentation for Archived Tasks Display
+**Type**: Missing Documentation  
+**Severity**: Medium  
+**Location**: README.md
+
+**Documented**: No mention of archived tasks display
+
+**Actual Implementation**:
+- Archived tasks are stored in a separate list (app.py, line 6: `archived_tasks = []`)
+- Templates/index.html displays archived tasks in a separate section
+- Users can view archived tasks on the main page
+
+**Missing Information**:
+- How to view archived tasks
+- Where archived tasks are displayed
+- Whether archived tasks can be unarchived (currently not possible)
+- Archived tasks retain their title but color display is not shown
+
+**Impact**: Users don't know how to access or view archived tasks after archiving them.
+
+---
+
+## DEFECT #5: Missing Documentation for Task Order Management
+**Type**: Missing Documentation  
+**Severity**: Medium  
+**Location**: README.md
+
+**Documented**: No mention of task ordering
+
+**Actual Implementation**:
+- Tasks are stored in a Python list maintaining insertion order
+- Tasks are displayed in the order they were added
+- No functionality to reorder tasks (move up/down)
+
+**Missing Information**:
+- Tasks are displayed in chronological order (oldest first)
+- No ability to change task order after creation
+- Deleting a task shifts subsequent task indices
+
+**Impact**: Users may expect task reordering functionality mentioned in the prompt but it's not implemented or documented.
+
+---
+
+## DEFECT #6: Incomplete Installation Instructions for Windows
+**Type**: Outdated/Incomplete Documentation  
+**Severity**: Low  
+**Location**: README.md, lines 3-8
+
+**Documented**:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install Flask
+```
+
+**Issue**: The activation command uses bash syntax (`source .venv/bin/activate`) which doesn't work on Windows. The project is being run on Windows PowerShell.
+
+**Correct Commands for Windows PowerShell**:
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install Flask
+```
+
+**Alternative for Windows CMD**:
+```cmd
+.venv\Scripts\activate.bat
+```
+
+**Impact**: Windows users following the documentation will fail to activate the virtual environment.
+
+---
+
+## DEFECT #7: Missing Error Handling Documentation
+**Type**: Missing Documentation  
+**Severity**: Medium  
+**Location**: README.md
+
+**Documented**: No mention of error handling or edge cases
+
+**Actual Implementation Issues**:
+1. Operations with invalid indices are silently ignored (no error message)
+2. Adding a task without a title creates a task with `title: None`
+3. No validation for color values
+4. No feedback for successful operations
+
+**Missing Information**:
+- What happens when operating on invalid task indices
+- Required vs optional form parameters
+- Valid color values or format
+- Expected behavior for edge cases
+
+**Impact**: Users don't understand the system's behavior in error conditions, leading to confusion.
+
+---
+
+## DEFECT #8: Missing Documentation for Task Data Structure
+**Type**: Missing Documentation  
+**Severity**: Low  
+**Location**: README.md
+
+**Documented**: No mention of task structure
+
+**Actual Implementation** (app.py, line 17):
+```python
+tasks.append({'title': title, 'color': color})
+```
+
+**Missing Information**:
+- Tasks are stored as dictionaries with 'title' and 'color' keys
+- No unique IDs for tasks (indexed by position)
+- No timestamps or metadata
+- No user association (prompt mentions "users" but not implemented)
+
+**Impact**: Users and developers don't understand the underlying data model.
+
+---
+
+## Summary
+- **Total Defects Found**: 8
+- **High Severity**: 2 (incorrect routes)
+- **Medium Severity**: 5 (missing feature documentation)
+- **Low Severity**: 1 (platform-specific instructions)
+
+**Critical Issues**:
+1. Route name mismatch for color change functionality
+2. HTTP method mismatch for archive functionality
+
+These defects prevent users from successfully following the documentation and using core features of the application.

@@ -1,26 +1,60 @@
 #!/bin/bash
-set -e
-source .venv/bin/activate
 
-echo "Testing Flask Project Management System"
+# Test runner script for Flask Project Management System
+# This script runs all test files and reports results
 
-# Start app in background
-python app.py &
-APP_PID=$!
-sleep 2
+echo "=========================================="
+echo "Flask Project Management System - Test Suite"
+echo "=========================================="
+echo ""
 
-# Test adding tasks
-curl -X POST -F "title=Task 1" -F "color=red" http://127.0.0.1:5000/add
-curl -X POST -F "title=Task 2" http://127.0.0.1:5000/add
+# Check if virtual environment is activated
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Warning: Virtual environment not activated."
+    echo "Attempting to activate..."
+    if [ -f ".venv/bin/activate" ]; then
+        source .venv/bin/activate
+        echo "Virtual environment activated."
+    else
+        echo "Error: Virtual environment not found. Run setup.sh first."
+        exit 1
+    fi
+fi
 
-# Test archive
-curl http://127.0.0.1:5000/archive/0
+# Check if pytest is installed
+if ! command -v pytest &> /dev/null; then
+    echo "Error: pytest is not installed."
+    echo "Installing test dependencies..."
+    pip install -r requirements.txt
+fi
 
-# Test delete
-curl http://127.0.0.1:5000/delete/0
+echo ""
+echo "Running all tests..."
+echo "=========================================="
+echo ""
 
-# Test update color
-curl -X POST -F "color=blue" http://127.0.0.1:5000/update_color/0
+# Run all tests with verbose output
+python -m pytest test_files/ -v --tb=short
 
-kill $APP_PID
-echo "All tests executed."
+# Capture exit code
+TEST_EXIT_CODE=$?
+
+echo ""
+echo "=========================================="
+
+if [ $TEST_EXIT_CODE -eq 0 ]; then
+    echo "✓ All tests passed!"
+else
+    echo "✗ Some tests failed. See output above for details."
+fi
+
+echo "=========================================="
+echo ""
+echo "To run tests with coverage, use:"
+echo "  python -m pytest test_files/ --cov=app --cov-report=html"
+echo ""
+echo "To run specific test file:"
+echo "  python -m pytest test_files/test_app.py -v"
+echo "=========================================="
+
+exit $TEST_EXIT_CODE
